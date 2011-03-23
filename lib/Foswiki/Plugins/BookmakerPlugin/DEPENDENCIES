@@ -1,0 +1,4 @@
+# Dependencies for BookmakerPlugin
+JSON,>=0,cpan,Required, available from CPAN
+Foswiki::Plugins::JQueryPlugin,>=0,perl,Required, available from Foswiki.org
+Foswiki::Contrib::JSTreeContrib,>=0,perl,Required, JQuery plugin

@@ -1,0 +1,70 @@
+---+!! !BookmakerPlugin
+<!--
+   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
+-->
+%SHORTDESCRIPTION%
+
+%TOC%
+
+The Bookmaker plugin provides support for interactive capture and sorting of ordered lists of topics.
+The lists are held in topics, and may be manually edited.
+
+This plugin also provides an API for access to the lists, as a service to other extensions such as the
+!PublishPlugin and !TocPlugin.
+
+The interactive features of this plugin require the !JQueryPlugin, and requires Javascript to be enabled in
+the user's browser. The API can still be used without the interactive features enabled, however.
+
+---++ Usage
+%IF{"context 'BookmakerPluginEnabled'"
+ then="$percntBUTTON{\"click here\" class=\"bookmaker_button\" href=\"%SCRIPTURL{view}%/%WEB%/%TOPIC%?open_bookmaker=Sandbox.WebOrder\"}$percnt"
+ else="Enable the plugin, and revisit this page"}%
+ to enable the bookmaker interface, capturing a book in Sandbox.WebOrder.
+
+Once you have opened the bookmaker interface it will remain open until you close it again.
+The bookmaker interface comprises a horizontal bar across the top of the page that carries buttons which support selecting your book, and adding and removing topics. More complex interactions are enabled when you expand the bar to show the full interface. This then allows you to interactively sort the topic list, and modify the indentation level of entries.
+
+You can copy-paste the following macro into your own topics to create a button that starts
+Bookmaker (change =Sandbox.WebOrder= to the topic name of your choice):
+<verbatim>
+%BUTTON{"Start Bookmaker" class="bookmaker_button" href="%SCRIPTURL{view}%/%WEB%/%TOPIC%?open_bookmaker=Sandbox.WebOrder"}%
+</verbatim>
+
+---+++ Format of a book topic
+At their simplest, book topics contain a bulleted list of topic names.
+
+A book topic may contain macros, but as soon as it is edited via the Bookmaker interface (e.g. by adding
+or removing a topic) those macros will be expanded, and the topic will be saved as a simple list of topic
+names.
+
+Book topics may optionally represent heirarchy, through the use of indentation levels in the list.
+
+An API is provided to allow other extensions to access the book. Note that the API should *always* be used
+to access book topics, as their format may change radically in the future.
+
+---+++ Macros
+
+| *Macro* | *Description* | *Current value (if the bookmaker is enabled)* |
+| =%<nop>BOOKMAKER_IN_OPEN_BOOK%= | Used in =%<nop>IF= statements to test if the current topic is included in the currently open book. Always false if no book is open. | %BOOKMAKER_IN_OPEN_BOOK% |
+| =%<nop>BOOKMAKER_BOOK%= | Name of the open book | <nop>%BOOKMAKER_BOOK% |
+| =%<nop>BOOKLIST%= | Get a comma-separated list of the pages in the currently open book (or another book if a parameter is given, e.g. =%<nop>BOOKLIST{"Otherweb.Bookname"}%=. | <nop>%BOOKLIST% |
+
+---++ Installation Instructions
+%$INSTALL_INSTRUCTIONS%
+
+---++ Info
+
+Many thanks to the following sponsors for supporting this work:
+   * DENX Software Engineering http://www.denx.de
+
+|  Author(s): | Crawford Currie http://c-dot.co.uk |
+|  Copyright: | &copy; 2011 Foswiki Contributors |
+|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
+|  Release: | %$RELEASE% |
+|  Version: | %$VERSION% |
+|  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  Dependencies: | %$DEPENDENCIES% |
+|  Home page: | http://foswiki.org/bin/view/Extensions/BookmakerPlugin |
+|  Support: | http://foswiki.org/bin/view/Support/BookmakerPlugin |
+
+<!-- Do _not_ attempt to edit this topic; it is auto-generated. -->
