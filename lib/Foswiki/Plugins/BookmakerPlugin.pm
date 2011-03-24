@@ -165,7 +165,7 @@ sub  _jstree {
 		$child = $kids->[$#$kids];
 	    } else {
 		# Insert a pseudo-node
-		$child = { data => '', attr => { topic => '' }, children => [] };
+		$child = { data => '', children => [] };
 	    }
 	    push(@stack, $child);
 	    $level++;
@@ -175,7 +175,10 @@ sub  _jstree {
 	    $level--;
 	}
 	my $node = {
-	    data => "$e->{web}.$e->{topic}",
+	    data => {
+		title => "$e->{web}.$e->{topic}",
+		attr => { href => "%SCRIPTURL{view}%/$e->{web}/$e->{topic}" }
+	    },
 	    attr => { topic => "$e->{web}.$e->{topic}" },
 	    children => [] };
 	push(@{$stack[$#stack]->{children}}, $node);

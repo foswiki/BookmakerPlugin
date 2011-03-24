@@ -12,10 +12,6 @@ with some simple rules regarding its composition:
    1 Entries are unique (can occur only once)
    1 Indentation is used to indicate the topic "level"
 
-Note that the methods of this class use =Foswiki::Func::normalizeWebTopicName= to
-ensure canonical web.topic names. These calls use the BOOKMAKER_BOOKWEB preference
-(which defaults to "Sandbox") as the default web.
-
 =cut
 
 use strict;
@@ -26,24 +22,31 @@ use Assert;
 =begin TML
 
 ---++ ClassMethod new($topic)
-   * =$topic= - name of the topic that will contain the book
-
-Construct a new Book object by loading the topic specified by the $topic
-(which should be a web.topic name)
+Construct a new Book object by loading the topic specified by =$topic=. If =$topic= does not
+specify a web, then the preference =BOOKMAKER_BOOKWEB= will be used or, if that is not set,
+=Sandbox=.
 
 If the topic already exists, access controls will be checked for read access. If this is
-denied, an AccessControlException will be thrown.
+denied, a =Foswiki::AccessControlException= will be thrown.
 
-Note that Foswiki macros in the topic are expanded when it is loaded, thus allowing
-use of %INCLUDE etc. However these macros will be lost when the book is saved.
+It is not an error to open a non-existent book topic (it will be created on the first save).
+
+Note that Foswiki macros in the book topic are expanded when it is loaded, thus allowing
+use of =%INCLUDE= etc. However these macros will be lost when the book is saved.
+
+The book parser accepts topics in a variety of formats, as described in %SYSTEMWEB%.BookmakerPlugin
 
 =cut
 
 sub new {
-    my ($class, $title) = @_;
+    my ($class, $book_topic) = @_;
 
-    my ($web, $topic) = _canonicalise($title);
-    my $this = bless({ web => $web, topic => $topic, order => [] }, $class);
+    my ($web, $topic) = Foswiki::Func::normalizeWebTopicName(
+	Foswiki::Func::getPreferencesValue('BOOKMAKER_BOOKWEB') || 'Sandbox',
+	$book_topic);
+
+    my $this = bless({ web => $web, topic => $topic, order => [],
+		     before => '', after => '' }, $class);
 
     # load the table of contents topic
     if (Foswiki::Func::topicExists($web, $topic)) {
@@ -63,35 +66,75 @@ sub new {
     
         # Check that each topic in the WebOrder only appears once
         my %seen;
+	my $state = 0; # 0 = before list, 1 = in list, 2 = after list
 
         foreach my $line ( @lines ) {
-	    next unless $line =~ /^((?:   |\t)+)(?:\*|\d+)\s*(.*?)\s*$/;
+	    if ($state < 2 && $line =~ /^((?:   |\t)+)(?:\*|\d+)\s*(.*?)\s*$/ ) {
+		$state = 1;
+		# drop through
+	    } elsif ($state == 0) {
+		$this->{before} .= "$line\n";
+		next;
+	    } elsif ($state > 0) {
+		$state = 2;
+		$this->{after} .= "$line\n";
+		next;
+	    }
+		
 	    my ($indent, $name) = ($1, $2);
 	    $indent =~ s/(   |\t)/./g;
         
+	    # The name may be:
+	    # Web.Topic
+	    # [[Topic name]] - relative to the web the book is in
+	    # [[Web.topic name]]
+	    # [[Web.topic name][arbitrary  string]]
+	    # The standard Foswiki rules are used to convert these to a web.topic name
+	    # (See Foswiki::Render::_handleSquareBracketedLink)
+	    if ($name =~ /^\[\[(.*)\]\]$/) { # squab
+		$name = $1;
+		# We are only interested in the first part
+		$name =~ s/\]\[.*$//;
+		# Extract '?params' and anchor
+		$name =~ s/[\?#].*$//;
+		# filter out &any; entities (legacy)
+		$name =~ s/\&[a-z]+\;//gi;
+		# filter out &#123; entities (legacy)
+		$name =~ s/\&\#[0-9]+\;//g;
+		# Filter junk
+		$name =~ s/$Foswiki::cfg{NameFilter}+/ /g;
+		$name = ucfirst($name);
+		# Collapse spaces and capitalise following letter
+		$name =~ s/\s([$Foswiki::regex{mixedAlphaNum}])/\U$1/g;
+		# Get rid of remaining spaces, i.e. spaces in front of -'s and ('s
+		$name =~ s/\s//g;
+	    }
+
+	    my ($eweb, $etopic) = $this->_canonicalise($name);
+	    $name = "$eweb.$etopic";
             next if ($seen{$name});
             $seen{$name} = 1;
 
-	    my ($web, $topic) = _canonicalise($name);
-
-            push(@{$this->{order}}, { web => $web, topic => $topic, level => length($indent) - 1 });
+            push(@{$this->{order}}, { web => $eweb, topic => $etopic, level => length($indent) - 1 });
         }
     }
     return $this;
 }
 
-# Private method to get a canonical web.topic name
+# Private method to get a canonical web.topic name.
 sub _canonicalise {
-    my $name = shift;
-    return Foswiki::Func::normalizeWebTopicName(
-	Foswiki::Func::getPreferencesValue('BOOKMAKER_BOOKWEB') || 'Sandbox', $name);
+    my ($this, $name) = @_;
+    return Foswiki::Func::normalizeWebTopicName($this->{web}, $name);
 }
 
 =begin TML
 
----++ ObjectMethod find($name) -> $index
-Given the name of a topic (which must be a canonical web.topic name) return the index of that
-topic in the book. Returns -1 if the topic is not found in the book.
+---++ ObjectMethod find($topic) -> $index
+Given the name of a topic return the index of that
+topic in the book. If =$topic= does not have a web specification, it will be assumed to
+be in the same web as the book topic.
+
+Returns -1 if the topic is not found in the book.
 
 Note that a topic can only occur once in a book.
 
@@ -99,7 +142,7 @@ Note that a topic can only occur once in a book.
 
 sub find {
     my ($this, $name) = @_;
-    my ($web, $topic) = _canonicalise($name);
+    my ($web, $topic) = $this->_canonicalise($name);
     for (my $i = 0; $i < scalar(@{$this->{order}}); $i++) {
 	return $i if ($this->{order}->[$i]->{web} eq $web &&
 		      $this->{order}->[$i]->{topic} eq $topic);
@@ -110,9 +153,9 @@ sub find {
 =begin TML
 
 ---++ ObjectMethod at($index) -> $entry
-Get the entry at a given index, or undef if it is out of range.
+Get the entry at a given =$index=, or =undef= if it is out of range.
 
-The entry is a hash containing { topic, level }
+The entry is a hash containing ={ web, topic, level }=
 
 =cut
 
@@ -126,7 +169,7 @@ sub at {
 
 ---++ ObjectMethod remove($i) -> $entry
 Remove the topic at the given index from the book.
-If $i <0, will shift the first entry. If > length, will pop the last. Otherwise will splice.
+If =$i < 0=, will shift the first entry. If =$i >= length=, will pop the last. Otherwise will splice.
 
 Returns the removed entry.
 
@@ -151,10 +194,13 @@ sub remove {
 ---++ ObjectMethod add($entry) -> $entry
 Add an existing entry to the end of the book.
 
----++ ObjectMethod add($name [, $level]) -> $entry
+---++ ObjectMethod add($topic [, $level]) -> $entry
 Create a new entry at the end of the book.
 
-The topic will be added at level 0 if $level is not given.
+If $topic does not have a web specification, it will be placed
+in the same web as the book topic.
+
+The topic will be added at level 0 if =$level= is not given.
 
 Returns the new entry.
 
@@ -167,16 +213,20 @@ sub add {
 
 =begin TML
 
----++ ObjectMethod insert($i, $name [, $level]) -> $entry
-Create a new entry at the given index. If $i <0, will add at the
-start, if $i > length at the end,
+---++ ObjectMethod insert($i, $topic [, $level]) -> $entry
+Create a new entry at the given index. If =$i < 0=, will add at the
+start, if =$i > length= at the end,
 
-The topic will be added at level 0 if $level is not given.
+If $topic does not have a web specification, it will be placed
+in the same web as the book topic.
+
+The topic will be added at level 0 if =$level= is not given.
 
 Returns the new entry.
 
 ---++ ObjectMethod insert($i, $entry) -> $entry
-Insert an existing entry at the given index;
+Insert an existing entry at the given index. If =$i < 0=, will add at the
+start, if =$i > length= at the end,
 
 =cut
 
@@ -186,7 +236,7 @@ sub insert {
     if (ref($name)) {
 	$e = $name;
     } else {
-	my ($web, $topic) = _canonicalise($name);
+	my ($web, $topic) = $this->_canonicalise($name);
 	$e = { web => $web, topic => $topic, level => $level || 0 };
     }
     if ( $i >= 0 ) {
@@ -227,7 +277,8 @@ sub each {
 ---++ ObjectMethod save()
 
 Save the current book to the book topic. The caller must have CHANGE access, or an
-!AccessControlException will be thrown. Meta-data on any existing topic is retained.
+=Foswiki::AccessControlException= will be thrown. Existing meta-data is kept, as are
+header and footer sections.
 
 =cut
 
@@ -242,10 +293,10 @@ sub save {
 	($m, my $t) = Foswiki::Func::readTopic($this->{web}, $this->{topic});
     }
     my $i = 0;
-    my $list = join(
+    my $list = $this->{before} . join(
 	"\n",
 	map { ('   ' x ($_->{level} + 1)) . (++$i) . " $_->{web}.$_->{topic}" } @{$this->{order}})
-	. "\n";
+	. "\n$this->{after}";
     Foswiki::Func::saveTopic($this->{web}, $this->{topic}, $m, $list, {
 	ignorepermissions => 1,
 	minor => 1,

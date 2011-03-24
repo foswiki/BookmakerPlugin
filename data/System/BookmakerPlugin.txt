@@ -17,30 +17,40 @@ the user's browser. The API can still be used without the interactive features e
 
 ---++ Usage
 %IF{"context 'BookmakerPluginEnabled'"
- then="$percntBUTTON{\"click here\" class=\"bookmaker_button\" href=\"%SCRIPTURL{view}%/%WEB%/%TOPIC%?open_bookmaker=Sandbox.WebOrder\"}$percnt"
+ then="$percntBUTTON{\"click here\" class=\"bookmaker_button\" href=\"%SCRIPTURL{view}%/%WEB%/%TOPIC%?open_bookmaker=Sandbox.ExampleBook\"}$percnt"
  else="Enable the plugin, and revisit this page"}%
- to enable the bookmaker interface, capturing a book in Sandbox.WebOrder.
+ to enable the bookmaker interface, capturing a book in Sandbox.ExampleBook.
 
 Once you have opened the bookmaker interface it will remain open until you close it again.
 The bookmaker interface comprises a horizontal bar across the top of the page that carries buttons which support selecting your book, and adding and removing topics. More complex interactions are enabled when you expand the bar to show the full interface. This then allows you to interactively sort the topic list, and modify the indentation level of entries.
 
 You can copy-paste the following macro into your own topics to create a button that starts
-Bookmaker (change =Sandbox.WebOrder= to the topic name of your choice):
+Bookmaker (change =Sandbox.ExampleBook= to the topic name of your choice):
 <verbatim>
-%BUTTON{"Start Bookmaker" class="bookmaker_button" href="%SCRIPTURL{view}%/%WEB%/%TOPIC%?open_bookmaker=Sandbox.WebOrder"}%
+%BUTTON{"Start Bookmaker" class="bookmaker_button" href="%SCRIPTURL{view}%/%WEB%/%TOPIC%?open_bookmaker=Sandbox.ExampleBook"}%
 </verbatim>
 
 ---+++ Format of a book topic
-At their simplest, book topics contain a bulleted list of topic names.
+At their simplest, book topics contain a list of topics, which can optionally be indented. Topics can be specified using a
+variety of formats, best illustrated by an example:
+<verbatim>
+   * Mybooks.ChapterOne
+   * ChapterTwo
+      1 [[Chapter2.SectionOne]]
+   * [[Chapter three][Chapter 3]]
+      * [[Chapter3.sad story][Sad Story]]
+</verbatim>
+If topic names do not include a web specification, then the topics are assumed to be in the same web as the book topic.
 
 A book topic may contain macros, but as soon as it is edited via the Bookmaker interface (e.g. by adding
 or removing a topic) those macros will be expanded, and the topic will be saved as a simple list of topic
 names.
 
-Book topics may optionally represent heirarchy, through the use of indentation levels in the list.
+Book topics may optionally represent hierarchy, through the use of indentation levels in the list.
 
 An API is provided to allow other extensions to access the book. Note that the API should *always* be used
-to access book topics, as their format may change radically in the future.
+to access book topics, as their format may change radically in the future. When the plugin is installed, the
+API will be documented [[%SYSTEMWEB%.PerlDoc?module=Foswiki::Plugins::BookmakerPlugin::Book][here]].
 
 ---+++ Macros
 
@@ -48,6 +58,9 @@ to access book topics, as their format may change radically in the future.
 | =%<nop>BOOKMAKER_IN_OPEN_BOOK%= | Used in =%<nop>IF= statements to test if the current topic is included in the currently open book. Always false if no book is open. | %BOOKMAKER_IN_OPEN_BOOK% |
 | =%<nop>BOOKMAKER_BOOK%= | Name of the open book | <nop>%BOOKMAKER_BOOK% |
 | =%<nop>BOOKLIST%= | Get a comma-separated list of the pages in the currently open book (or another book if a parameter is given, e.g. =%<nop>BOOKLIST{"Otherweb.Bookname"}%=. | <nop>%BOOKLIST% |
+
+Note that =BOOKLIST= will accept a book name with no web specification; in this case, the =BOOKMAKER_BOOKWEB=
+preference will be referred to for the name of a web or, if it is not set, the =Sandbox= web will be used.
 
 ---++ Installation Instructions
 %$INSTALL_INSTRUCTIONS%
