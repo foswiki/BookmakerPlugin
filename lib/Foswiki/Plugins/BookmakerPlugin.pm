@@ -102,7 +102,7 @@ sub _BOOKLIST {
     my @list;
     while ($it->hasNext()) {
 	my $e = $it->next();
-	push(@list, $e);
+	push(@list, "$e->{web}.$e->{topic}");
     }
     return join(',', @list);
 }
