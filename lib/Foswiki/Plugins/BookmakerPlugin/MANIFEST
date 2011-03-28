@@ -8,4 +8,6 @@ pub/System/BookmakerPlugin/bookmaker.css 0644
 pub/System/BookmakerPlugin/bookmaker.js 0644
 pub/System/BookmakerPlugin/bookmaker_src.css 0644
 pub/System/BookmakerPlugin/bookmaker_src.js 0644
+pub/System/BookmakerPlugin/expanded.png 0444
+pub/System/BookmakerPlugin/shrunk.png 0444
 templates/bookmaker.tmpl 0644

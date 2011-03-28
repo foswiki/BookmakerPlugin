@@ -7,7 +7,14 @@
 %TOC%
 
 The Bookmaker plugin provides support for interactive capture and sorting of ordered lists of topics.
-The lists are held in topics, and may be manually edited.
+
+<img src="%ATTACHURL%/shrunk.png"/>
+
+<br class="foswikiClear">
+
+The lists are held in topics, and may be manually edited, or can be manipulated through the interface.
+
+<img src="%ATTACHURL%/expanded.png"/>
 
 This plugin also provides an API for access to the lists, as a service to other extensions such as the
 !PublishPlugin and !TocPlugin.
@@ -82,3 +89,5 @@ Many thanks to the following sponsors for supporting this work:
 |  Support: | http://foswiki.org/bin/view/Support/BookmakerPlugin |
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. -->
+%META:FILEATTACHMENT{name="expanded.png" attr="h" comment="" version="1"}%
+%META:FILEATTACHMENT{name="shrunk.png" attr="h" comment="" version="1"}%
