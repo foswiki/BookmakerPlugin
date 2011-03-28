@@ -25,7 +25,6 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'BOOKMAKER_BOOK', sub { $bookName || '' } );
 
     $bookName = Foswiki::Func::getSessionValue('BOOKMAKER_OPEN_BOOK');
-    print STDERR "BOOK IS $bookName\n" if $bookName;
     my $q = Foswiki::Func::getCgiQuery();
     
     if ($q && $q->param("open_bookmaker")) {
@@ -36,7 +35,6 @@ sub initPlugin {
 	$ttopic = Foswiki::Sandbox::untaint($ttopic, \&Foswiki::Sandbox::validateTopicName);
 	$bookName = "$tweb.$ttopic";
 	Foswiki::Func::setSessionValue('BOOKMAKER_OPEN_BOOK', $bookName);
-	print STDERR "CHANGED BOOK $bookName\n";
     }
     return 1 unless $bookName;
 
@@ -72,16 +70,21 @@ sub _openBook {
 sub postRenderingHandler {
     #my ($text, $map) = @_;
 
-    return unless $_[0] =~ m#<body #i;
-
+    # There has to be a book
     return unless $bookName;
 
-    print STDERR "PRH ".Foswiki::Func::expandCommonVariables("%BOOKMAKER_BOOK%")."\n";
+    # Only view gets the bookmaker
+    return unless Foswiki::Func::getContext()->{view};
+
+    # only the body section gets a bookmaker
+    return unless $_[0] =~ m#<body #i;
 
     my $tmpl = Foswiki::Func::readTemplate("bookmaker");
     my $session = $Foswiki::Plugins::SESSION;
-    $tmpl = Foswiki::Func::expandCommonVariables($tmpl, $session->{topicName}, $session->{webName});
-    $tmpl = Foswiki::Func::renderText($tmpl, $session->{topicName}, $session->{webName});
+    $tmpl = Foswiki::Func::expandCommonVariables(
+	$tmpl, $session->{topicName}, $session->{webName});
+    $tmpl = Foswiki::Func::renderText(
+	$tmpl, $session->{topicName}, $session->{webName});
     $_[0] =~ s#(<body.*?>)#$1$tmpl#;
 }
 

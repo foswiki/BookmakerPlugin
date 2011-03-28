@@ -76,6 +76,7 @@ Many thanks to the following sponsors for supporting this work:
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  1.0.0 (28 Mar 2011) | Initial version |
 |  Dependencies: | %$DEPENDENCIES% |
 |  Home page: | http://foswiki.org/bin/view/Extensions/BookmakerPlugin |
 |  Support: | http://foswiki.org/bin/view/Support/BookmakerPlugin |
