@@ -9,7 +9,7 @@ use Foswiki::Func ();
 use JSON;
 
 our $VERSION = '$Rev: 9771 $';
-our $RELEASE = '1.0.0';
+our $RELEASE = '1.0.1';
 our $SHORTDESCRIPTION = 'Provides a UI and an API for other extensions that support the definition and maintenance of a specific topic ordering';
 our $NO_PREFS_IN_TOPIC = 1;
 our $openBook;
