@@ -1,6 +1,6 @@
 # Release manifest for BookmakerPlugin
 data/System/BookmakerPlugin.txt 0644
-data/System/ExampleBook.txt 0644
+data/Sandbox/ExampleBook.txt 0644
 lib/Foswiki/Plugins/BookmakerPlugin.pm 0644
 lib/Foswiki/Plugins/BookmakerPlugin/Book.pm 0644
 lib/Foswiki/Plugins/BookmakerPlugin/JQuery.pm 0644

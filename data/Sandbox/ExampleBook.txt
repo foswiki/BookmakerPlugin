@@ -2,7 +2,7 @@
    1 [[ExampleBook]]
    1 [[System.Plugins][Plugins]]
       * System.BookmakerPlugin
-   2 [[System.example book]]
+   2 [[Sandbox.ExampleBook]]
    * Appendices
       * [[System.AppendixEncodeURLsWithUTF8][B: Encode URLs With UTF8]]
 
