@@ -83,6 +83,7 @@ Many thanks to the following sponsors for supporting this work:
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  1.0.3 (25 May 2011) | Foswiki:Tasks/Item10786: Fix multiple BOOKLIST calls in same topic |
 |  1.0.2 (20 Apr 2011) | Moving the !ExampleBook into the Sandbox web. |
 |  1.0.1 (15 Apr 2011) | Minor correction on file permissions. |
 |  1.0.0 (28 Mar 2011) | Initial version |

@@ -9,7 +9,7 @@ use Foswiki::Func ();
 use JSON;
 
 our $VERSION = '$Rev: 9771 $';
-our $RELEASE = '1.0.2';
+our $RELEASE = '1.0.3';
 our $SHORTDESCRIPTION = 'Provides a UI and an API for other extensions that support the definition and maintenance of a specific topic ordering';
 our $NO_PREFS_IN_TOPIC = 1;
 our $openBook;
@@ -100,8 +100,10 @@ sub _BOOKLIST {
     my ($session, $params, $topic, $web, $topicObject) = @_;
     my $title = $params->{_DEFAULT} || $bookName;
     return '' unless $title;
-    return '' unless _openBook($title);
-    my $it = $openBook->each();
+    require Foswiki::Plugins::BookmakerPlugin::Book;
+    my $book = Foswiki::Plugins::BookmakerPlugin::Book->new($title);
+    return '' unless $book;
+    my $it = $book->each();
     my @list;
     while ($it->hasNext()) {
 	my $e = $it->next();
