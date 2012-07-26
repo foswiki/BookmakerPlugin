@@ -115,8 +115,8 @@ sub _BOOKLIST {
     return '' unless $book;
     my $it = $book->each();
     my @list;
-    my $format    = $params->{format}    || '$web.$topic';
-    my $separator = $params->{separator} || ',';
+    my $format = defined $params->{format} ? $params->{format} : '$web.$topic';
+    my $separator = defined $params->{separator} ? $params->{separator} : ',';
 
     while ( $it->hasNext() ) {
         my $e     = $it->next();
