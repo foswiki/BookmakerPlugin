@@ -64,10 +64,16 @@ API will be documented [[%SYSTEMWEB%.PerlDoc?module=Foswiki::Plugins::BookmakerP
 | *Macro* | *Description* | *Current value (if the bookmaker is enabled)* |
 | =%<nop>BOOKMAKER_IN_OPEN_BOOK%= | Used in =%<nop>IF= statements to test if the current topic is included in the currently open book. Always false if no book is open. | %BOOKMAKER_IN_OPEN_BOOK% |
 | =%<nop>BOOKMAKER_BOOK%= | Name of the open book | <nop>%BOOKMAKER_BOOK% |
-| =%<nop>BOOKLIST%= | Get a comma-separated list of the pages in the currently open book (or another book if a parameter is given, e.g. =%<nop>BOOKLIST{"Otherweb.Bookname"}%=. | <nop>%BOOKLIST% |
+| =%<nop>BOOKLIST%= | Get a formatted list of the pages in the currently open book (or another book if a parameter is given, e.g. =%<nop>BOOKLIST{"Otherweb.Bookname"}%=. | <nop>%BOOKLIST% |
 
 Note that =BOOKLIST= will accept a book name with no web specification; in this case, the =BOOKMAKER_BOOKWEB=
 preference will be referred to for the name of a web or, if it is not set, the =Sandbox= web will be used.
+
+=BOOKLIST= also accepts =format= and =separator= parameters. These are expanded to create each entry in the list, and the separator used in the list. For example, to use =BOOKLIST= to pull in the entire contents of the topics in the book, you could use:
+<verbatim>
+%BOOKLIST{format="$percntINCLUDE{"$web.$topic"}$percnt" separator="$n()"}%
+</verbatim>
+As well as =$web= and =$topic=, the index depth of the topic can be obtained from =$level=. All standard [[FormatTokens][formatting tokens]] are also expanded.
 
 ---++ Installation Instructions
 %$INSTALL_INSTRUCTIONS%
@@ -83,6 +89,7 @@ Many thanks to the following sponsors for supporting this work:
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  1.1.0 (26 Jul 2012) | Foswiki:Tasks/Item12013: Add support for formatting the BOOKLIST |
 |  1.0.3 (25 May 2011) | Foswiki:Tasks/Item10786: Fix multiple BOOKLIST calls in same topic |
 |  1.0.2 (20 Apr 2011) | Moving the !ExampleBook into the Sandbox web. |
 |  1.0.1 (15 Apr 2011) | Minor correction on file permissions. |

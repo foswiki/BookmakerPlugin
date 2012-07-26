@@ -9,7 +9,7 @@ use Foswiki::Func ();
 use JSON;
 
 our $VERSION = '$Rev: 9771 $';
-our $RELEASE = '1.0.3';
+our $RELEASE = '1.1.0';
 our $SHORTDESCRIPTION =
 'Provides a UI and an API for other extensions that support the definition and maintenance of a specific topic ordering';
 our $NO_PREFS_IN_TOPIC = 1;
@@ -115,12 +115,18 @@ sub _BOOKLIST {
     return '' unless $book;
     my $it = $book->each();
     my @list;
+    my $format    = $params->{format}    || '$web.$topic';
+    my $separator = $params->{separator} || ',';
 
     while ( $it->hasNext() ) {
-        my $e = $it->next();
-        push( @list, "$e->{web}.$e->{topic}" );
+        my $e     = $it->next();
+        my $entry = $format;
+        $entry =~ s/\$web/$e->{web}/g;
+        $entry =~ s/\$topic/$e->{topic}/g;
+        $entry =~ s/\$level/$e->{level}/g;
+        push( @list, $entry );
     }
-    return join( ',', @list );
+    return Foswiki::Func::decodeFormatTokens( join( $separator, @list ) );
 }
 
 # REST handlers
