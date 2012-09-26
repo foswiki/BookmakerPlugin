@@ -334,7 +334,7 @@ sub save {
                 ( '   ' x ( $_->{level} + 1 ) )
               . ( ++$i )
               . " $_->{web}.$_->{topic}"
-          } @{ $this->{order} }
+        } @{ $this->{order} }
     ) . "\n$this->{after}";
     Foswiki::Func::saveTopic(
         $this->{web},
